@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pomodoro Timer</title>
+    <link rel="icon" type="image/x-icon" href="./assets/images/logo.ico">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="shortcut icon" href="/assets/images/logo.png" type="image/x-icon">
     <style>
         * {
             margin: 0;
@@ -359,10 +359,10 @@
         }
 
         function playBackgroundAudio() {
-            backgroundAudio.src = 'marrom.mp3';
+            backgroundAudio.src = './assets/audios/Marrom.mp3';
             backgroundAudio.play().catch(err => {
                 console.error('Erro ao reproduzir áudio de fundo:', err);
-                status.textContent = 'Erro ao carregar marrom.mp3';
+                status.textContent = 'Erro ao carregar Marrom.mp3';
             });
             audioIndicator.classList.add('active');
         }
@@ -375,7 +375,7 @@
 
         function playAlarm() {
             stopBackgroundAudio();
-            alarmAudio.src = 'alarm.mp3';
+            alarmAudio.src = './assets/audios/alarm.mp3';
             alarmAudio.play().catch(err => {
                 console.error('Erro ao reproduzir alarme:', err);
                 status.textContent = 'Erro ao carregar alarm.mp3';

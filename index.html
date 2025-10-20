@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="/assets/images/logo.png" type="image/x-icon">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a0b2e 0%, #2d1b4e 50%, #4a2c6d 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #e0d4f7;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(42, 24, 68, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(138, 89, 255, 0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #a78bfa 0%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .tab {
+            padding: 12px 30px;
+            background: rgba(42, 24, 68, 0.4);
+            border: 2px solid rgba(138, 89, 255, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            color: #b39ddb;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .tab:hover {
+            border-color: #a78bfa;
+            background: rgba(42, 24, 68, 0.6);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+            border-color: #a78bfa;
+            color: white;
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: #b39ddb;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        .timer-display {
+            font-size: 5rem;
+            font-weight: 600;
+            margin: 40px 0;
+            color: #e0d4f7;
+            text-shadow: 0 0 30px rgba(167, 139, 250, 0.5);
+            letter-spacing: 0.1em;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 1rem;
+            color: #b39ddb;
+            font-weight: 400;
+        }
+
+        input[type="number"] {
+            width: 100px;
+            padding: 12px 16px;
+            font-size: 1.2rem;
+            border: 2px solid rgba(138, 89, 255, 0.4);
+            border-radius: 12px;
+            background: rgba(42, 24, 68, 0.8);
+            color: #e0d4f7;
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #a78bfa;
+            box-shadow: 0 0 20px rgba(167, 139, 250, 0.4);
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            opacity: 1;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-play {
+            background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+        }
+
+        .btn-pause {
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .audio-indicator {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: #8b5cf6;
+            font-weight: 400;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .audio-indicator.active {
+            display: flex;
+        }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            background: #8b5cf6;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(1.3);
+            }
+        }
+
+        .status {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #b39ddb;
+            font-weight: 300;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .timer-display {
+                font-size: 3.5rem;
+            }
+
+            button {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+
+            input[type="number"] {
+                width: 80px;
+                padding: 10px 12px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍅 Pomodoro Timer</h1>
+        <p class="subtitle">Mantenha o foco e a produtividade</p>
+
+        <div class="tabs">
+            <div class="tab active" id="tabFoco" data-mode="foco">
+                ⏱️ Foco
+            </div>
+            <div class="tab" id="tabPausa" data-mode="pausa">
+                ☕ Pausa
+            </div>
+        </div>
+
+        <div class="timer-display" id="timerDisplay">25:00</div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="minutesInput" id="labelMinutes">Minutos de Foco:</label>
+                <input type="number" id="minutesInput" min="0" max="30" value="25">
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn-play" id="playBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                Play
+            </button>
+            <button class="btn-pause" id="pauseBtn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                Pause
+            </button>
+            <button class="btn-reset" id="resetBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                Reset
+            </button>
+        </div>
+
+        <div class="audio-indicator" id="audioIndicator">
+            <div class="pulse"></div>
+            <span>Áudio tocando</span>
+        </div>
+
+        <div class="status" id="status">Configure o tempo e clique em Play</div>
+    </div>
+
+    <audio id="backgroundAudio" loop></audio>
+    <audio id="alarmAudio"></audio>
+
+    <script>
+        let timeLeft = 25 * 60;
+        let timerInterval = null;
+        let isRunning = false;
+        let currentMode = 'foco'; // 'foco' ou 'pausa'
+        let focoTime = 25;
+        let pausaTime = 5;
+        
+        const timerDisplay = document.getElementById('timerDisplay');
+        const minutesInput = document.getElementById('minutesInput');
+        const labelMinutes = document.getElementById('labelMinutes');
+        const playBtn = document.getElementById('playBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const status = document.getElementById('status');
+        const audioIndicator = document.getElementById('audioIndicator');
+        const backgroundAudio = document.getElementById('backgroundAudio');
+        const alarmAudio = document.getElementById('alarmAudio');
+        const tabFoco = document.getElementById('tabFoco');
+        const tabPausa = document.getElementById('tabPausa');
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function updateDisplay() {
+            timerDisplay.textContent = formatTime(timeLeft);
+        }
+
+        function switchMode(mode) {
+            if (isRunning) return; // Não permite trocar de aba enquanto timer está rodando
+            
+            currentMode = mode;
+            
+            // Atualiza visual das abas
+            if (mode === 'foco') {
+                tabFoco.classList.add('active');
+                tabPausa.classList.remove('active');
+                labelMinutes.textContent = 'Minutos de Foco:';
+                minutesInput.max = '30';
+                minutesInput.value = focoTime;
+                timeLeft = focoTime * 60;
+            } else {
+                tabPausa.classList.add('active');
+                tabFoco.classList.remove('active');
+                labelMinutes.textContent = 'Minutos de Pausa:';
+                minutesInput.max = '15';
+                minutesInput.value = pausaTime;
+                timeLeft = pausaTime * 60;
+            }
+            
+            updateDisplay();
+            updatePlayButton();
+        }
+
+        function playBackgroundAudio() {
+            backgroundAudio.src = 'marrom.mp3';
+            backgroundAudio.play().catch(err => {
+                console.error('Erro ao reproduzir áudio de fundo:', err);
+                status.textContent = 'Erro ao carregar marrom.mp3';
+            });
+            audioIndicator.classList.add('active');
+        }
+
+        function stopBackgroundAudio() {
+            backgroundAudio.pause();
+            backgroundAudio.currentTime = 0;
+            audioIndicator.classList.remove('active');
+        }
+
+        function playAlarm() {
+            stopBackgroundAudio();
+            alarmAudio.src = 'alarm.mp3';
+            alarmAudio.play().catch(err => {
+                console.error('Erro ao reproduzir alarme:', err);
+                status.textContent = 'Erro ao carregar alarm.mp3';
+            });
+            audioIndicator.classList.add('active');
+            
+            alarmAudio.onended = () => {
+                audioIndicator.classList.remove('active');
+            };
+        }
+
+        function startTimer() {
+            if (isRunning || timeLeft <= 0) return;
+            
+            isRunning = true;
+            playBtn.disabled = true;
+            pauseBtn.disabled = false;
+            minutesInput.disabled = true;
+            status.textContent = currentMode === 'foco' ? 'Foco ativo...' : 'Pausa ativa...';
+            
+            playBackgroundAudio();
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateDisplay();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    isRunning = false;
+                    playBtn.disabled = false;
+                    pauseBtn.disabled = true;
+                    
+                    if (currentMode === 'foco') {
+                        status.textContent = '⏰ Tempo de foco finalizado! Hora de descansar.';
+                    } else {
+                        status.textContent = '⏰ Pausa finalizada! Vamos voltar ao trabalho.';
+                    }
+                    
+                    playAlarm();
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            if (!isRunning) return;
+            
+            clearInterval(timerInterval);
+            isRunning = false;
+            playBtn.disabled = false;
+            pauseBtn.disabled = true;
+            status.textContent = 'Temporizador pausado';
+            stopBackgroundAudio();
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            
+            const minutes = parseInt(minutesInput.value);
+            if (isNaN(minutes)) {
+                timeLeft = 0;
+            } else {
+                const maxMinutes = currentMode === 'foco' ? 30 : 15;
+                const clampedMinutes = Math.min(Math.max(minutes, 0), maxMinutes);
+                timeLeft = clampedMinutes * 60;
+                
+                // Salva o tempo configurado
+                if (currentMode === 'foco') {
+                    focoTime = clampedMinutes;
+                } else {
+                    pausaTime = clampedMinutes;
+                }
+            }
+            
+            updateDisplay();
+            updatePlayButton();
+            pauseBtn.disabled = true;
+            minutesInput.disabled = false;
+            status.textContent = 'Temporizador resetado';
+            stopBackgroundAudio();
+        }
+
+        function updatePlayButton() {
+            if (timeLeft <= 0) {
+                playBtn.disabled = true;
+                status.textContent = 'Configure um tempo maior que 0 para iniciar';
+            } else {
+                playBtn.disabled = false;
+                status.textContent = 'Configure o tempo e clique em Play';
+            }
+        }
+
+        minutesInput.addEventListener('input', () => {
+            if (!isRunning) {
+                const minutes = parseInt(minutesInput.value);
+                const maxMinutes = currentMode === 'foco' ? 30 : 15;
+                
+                if (isNaN(minutes) || minutesInput.value === '') {
+                    timeLeft = 0;
+                } else {
+                    const clampedMinutes = Math.min(Math.max(minutes, 0), maxMinutes);
+                    minutesInput.value = clampedMinutes;
+                    timeLeft = clampedMinutes * 60;
+                    
+                    // Salva o tempo configurado
+                    if (currentMode === 'foco') {
+                        focoTime = clampedMinutes;
+                    } else {
+                        pausaTime = clampedMinutes;
+                    }
+                }
+                updateDisplay();
+                updatePlayButton();
+            }
+        });
+
+        tabFoco.addEventListener('click', () => switchMode('foco'));
+        tabPausa.addEventListener('click', () => switchMode('pausa'));
+        playBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+
+        updateDisplay();
+        updatePlayButton();
+    </script>
+</body>
+</html>

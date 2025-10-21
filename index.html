@@ -10,32 +10,64 @@
       rel="stylesheet"
     />
     <style>
+      /* Reset básico */
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
 
+      html,
       body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
         font-family: "Poppins", sans-serif;
-        background: linear-gradient(
-          135deg,
-          #1a0b2e 0%,
-          #2d1b4e 50%,
-          #4a2c6d 100%
-        );
-        min-height: 100vh;
+        color: #e0d4f7;
+        /* sem background aqui! */
+      }
+
+      /* ===== Fundo fixo independente do body ===== */
+      .bg {
+        position: fixed;
+        inset: 0; /* top/right/bottom/left: 0 */
+        z-index: 0; /* fica atrás do app */
+        pointer-events: none; /* não bloqueia cliques */
+
+        /* Gradiente por cima da imagem */
+        background-image: linear-gradient(
+            135deg,
+            rgba(26, 11, 46, 0.85) 0%,
+            rgba(45, 27, 78, 0.85) 50%,
+            rgba(74, 44, 109, 0.85) 100%
+          ),
+          url("./assets/images/background.png"); /* use png/jpg/webp */
+
+        background-position: center, center;
+        background-size: cover, cover;
+        background-repeat: no-repeat, no-repeat;
+        /* Nada de background-attachment: o elemento já é fixo */
+      }
+
+      /* Wrapper do app sobre o fundo */
+      .app {
+        position: relative;
+        z-index: 1; /* acima da .bg */
+        min-height: 100dvh; /* viewport estável no mobile */
         display: flex;
         justify-content: center;
         align-items: center;
-        color: #e0d4f7;
-        padding: 20px;
+        padding: 20px; /* o padding que você usava no body */
       }
 
+      /* ===== Seu card ===== */
       .container {
         text-align: center;
         padding: 30px 40px;
         background: rgba(42, 24, 68, 0.6);
+        -webkit-backdrop-filter: blur(10px); /* suporte iOS */
         backdrop-filter: blur(10px);
         border-radius: 30px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
@@ -178,11 +210,9 @@
       .btn-play {
         background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
       }
-
       .btn-pause {
         background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
       }
-
       .btn-reset {
         background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
       }
@@ -196,7 +226,6 @@
 
       button:disabled:hover {
         transform: none;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
       }
 
       .audio-indicator {
@@ -245,24 +274,22 @@
         font-weight: 300;
       }
 
+      /* ===== Mobile ===== */
       @media (max-width: 600px) {
-        body {
+        .app {
           padding: 0;
           align-items: stretch;
+          min-height: 100dvh;
         }
 
+        /* Se quiser que o card ocupe a tela toda, deixe transparente */
         .container {
           padding: 30px 20px;
           max-width: 100%;
           width: 100%;
           min-height: 100vh;
           border-radius: 0;
-          background: linear-gradient(
-            135deg,
-            #1a0b2e 0%,
-            #2d1b4e 50%,
-            #4a2c6d 100%
-          );
+          background: transparent; /* troque para rgba(42,24,68,.6) se quiser “vidro” */
           box-shadow: none;
           border: none;
           display: flex;
@@ -273,7 +300,6 @@
         h1 {
           font-size: 2rem;
         }
-
         .timer-display {
           font-size: 3.5rem;
         }
@@ -292,85 +318,50 @@
     </style>
   </head>
   <body>
-    <div class="container">
-      <h1>🍅 Pomodoro Timer</h1>
-      <p class="subtitle">Mantenha o foco e a produtividade</p>
+    <div class="bg" aria-hidden="true"></div>
 
-      <div class="tabs">
-        <div class="tab active" id="tabFoco" data-mode="foco">⏱️ Foco</div>
-        <div class="tab" id="tabPausa" data-mode="pausa">☕ Pausa</div>
-      </div>
+    <!-- Conteúdo do app -->
+    <main class="app">
+      <div class="container">
+        <h1>🍅 Pomodoro Timer</h1>
+        <p class="subtitle">Mantenha o foco e a produtividade</p>
 
-      <div class="timer-display" id="timerDisplay">25:00</div>
-
-      <div class="input-section">
-        <div class="input-group">
-          <label for="minutesInput" id="labelMinutes">Minutos de Foco:</label>
-          <input type="number" id="minutesInput" min="0" max="30" value="25" />
+        <div class="tabs">
+          <div class="tab active" id="tabFoco" data-mode="foco">⏱️ Foco</div>
+          <div class="tab" id="tabPausa" data-mode="pausa">☕ Pausa</div>
         </div>
+
+        <div class="timer-display" id="timerDisplay">25:00</div>
+
+        <div class="input-section">
+          <div class="input-group">
+            <label for="minutesInput" id="labelMinutes">Minutos de Foco:</label>
+            <input
+              type="number"
+              id="minutesInput"
+              min="0"
+              max="30"
+              value="25"
+            />
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="btn-play" id="playBtn">Play</button>
+          <button class="btn-pause" id="pauseBtn" disabled>Pause</button>
+          <button class="btn-reset" id="resetBtn">Reset</button>
+        </div>
+
+        <div class="audio-indicator" id="audioIndicator">
+          <div class="pulse"></div>
+          <span>Áudio tocando</span>
+        </div>
+
+        <div class="status" id="status">Configure o tempo e clique em Play</div>
       </div>
+    </main>
 
-      <div class="controls">
-        <button class="btn-play" id="playBtn">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <polygon points="6 3 20 12 6 21 6 3"></polygon>
-          </svg>
-          Play
-        </button>
-        <button class="btn-pause" id="pauseBtn" disabled>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <rect x="6" y="4" width="4" height="16"></rect>
-            <rect x="14" y="4" width="4" height="16"></rect>
-          </svg>
-          Pause
-        </button>
-        <button class="btn-reset" id="resetBtn">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <polyline points="1 4 1 10 7 10"></polyline>
-            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-          </svg>
-          Reset
-        </button>
-      </div>
-
-      <div class="audio-indicator" id="audioIndicator">
-        <div class="pulse"></div>
-        <span>Áudio tocando</span>
-      </div>
-
-      <div class="status" id="status">Configure o tempo e clique em Play</div>
-    </div>
-
+    <!-- Áudios e script permanecem -->
     <audio id="backgroundAudio" loop></audio>
     <audio id="alarmAudio"></audio>
 
